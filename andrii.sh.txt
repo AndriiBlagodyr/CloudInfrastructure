@@ -1,0 +1,102 @@
+#! /bin/bash
+
+# E) If large count of random numbers were entered, for example > 500,  script should continue to generate random numbers after break and will not copy itself, will not create folders one more time. For example, I stopped the script by ctrl+c after 3 second and it have generated 100 files. In next run it will not re-generate this 500 numbers, but it will continue to generate from 501 random number.
+
+# Create config file for the case of interrupted script execution and check if it exists:
+if [ -e /home/andrii/"config.txt" ]; then
+    echo "Config Found"
+    CONFIG_FILE="config.txt"
+    count=`cat config.txt`
+    echo $count
+# If config file exists - the process was interrupted, so we don't create folders one more time and take param from the file
+else
+    touch config.txt
+    CONFIG_FILE="config.txt"
+    # A) Creates in home folder of your user directory hw1 and  2 directories inside it: /bin and /data
+    if [ ! -d /home/andrii/hw1/bin ]; then
+      mkdir -p /home/andrii/hw1/bin;
+    fi
+
+    if [ ! -d /home/andrii/hw1/data ]; then
+      mkdir -p /home/andrii/hw1/data;
+    fi
+
+    # B) Than it copying itself to the ~/hw1/bin directory and makes itself executable.
+    cp andrii.sh /home/andrii/hw1/bin/
+    chmod +x andrii.sh
+fi
+# C) It creates several text files with random float numbers (no more than 5 random numbers in each # file). Script can get count of random numbers from positional argument to script. For example: scriptname.sh 25 - 5 files will be generated with 5 random numbers in each file. Filenames can be sequencial.
+
+# D) Make this filenames random, avoid collisions with existing filenames.
+if [[ "$1" != "" && $1>0 ]]; then
+    echo -e  "\$1=$1"
+     if [[ $count>0 ]]; then
+        let "files = (($count/5))"
+        let "rest = $count%5"
+     else
+        let "files = (($1/5))"
+        let "rest = $1%5"
+     fi
+    echo "Files: $files"       
+        if (( $files>0 )); then
+                var=0
+                until (( var >= $files ))            
+                do  
+                    # Write the number of not generated numbers in the config state to restore data in case of interruption!
+                    let "numbers = ((($files-$var)*5+$rest))"
+                    echo $numbers > $CONFIG_FILE
+                    # delay 1 seconds for the file creation
+                   sleep 1
+                   #Generating random filename and check if such exists. If does - regenerate a new one:
+                   FILE=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+                   until [ ! -e /home/andrii/"File$(printf "$FILE").txt" ]            
+                   do
+                    FILE=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+                   done
+
+                   listFloats=0.0
+                   for i in $(seq 0 4)
+                    do
+                        rand=$[($RANDOM % 15000)]
+	                    printf -v rand "%.2f" ${rand}	                    
+	                    if [ $i -eq 0 ]
+	                    then
+		                    listFloats=${rand}
+	                    else 
+		                    listFloats="${listFloats} ${rand}"
+	                    fi
+                    done                           
+                echo $listFloats > "File$(printf "$FILE").txt"
+                (( var++ ))
+                done
+        echo "Files contains something"
+        fi
+# Create one more file if we have a rest dividing the number from param by 5. Example 36 - we'll create 7 files with 5 numbers and one file with 36%5 = 1 number in the file.
+        if (( $rest>0 )); then
+                   #Generating random filename and check if such exists. If does - regenerate a new one:
+                   FILE=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+                   until [ ! -e /home/andrii/"File$(printf "$FILE").txt" ]           
+                   do
+                    FILE=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+                   done
+                   let "number = (($rest-1))"
+                   listFloats=0.0
+                   for i in $(seq 0 $number)
+                    do
+                        rand=$[($RANDOM % 15000)]
+	                    printf -v rand "%.2f" ${rand}
+	                    
+	                    if [ $i -eq 0 ]
+	                    then
+		                    listFloats=${rand}
+	                    else 
+		                    listFloats="${listFloats} ${rand}"
+	                    fi
+                    done                    
+                echo $listFloats > "File$(printf "$FILE").txt"
+        fi
+    echo "Positional parameter 1 contains something"
+else
+    echo "Positional parameter 1 is empty"
+fi
+rm config.txt
