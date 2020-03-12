@@ -1,0 +1,42 @@
+Created index.html service counting Fibonachi sequence and Dockerfile
+
+Created Dockerfile:
+ - docker build -t html-server-image:v1 .
+ - docker images
+ - docker run -d -p 80:80 html-server-image:v1 nginx -g "daemon off;"
+ - docker login
+ - docker tag html-server-image:v1 ucuuser/kube:version1
+ - docker push ucuuser/kube:version1    
+
+Launched Oracle VM Cirtual Box:
+ - minikube start --vm-driver=virtualbox
+
+Check kubernetis status:
+ - minikube status
+Result:
+PS C:\WINDOWS\system32> minikube status
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+ - minikube delete
+ - minikube start --vm-driver=virtualbox
+
+Starting Kubernetes on windows, I faced with problems of switching on/off
+Hyper-V. The following recomendations helped to resolve the issues. While,
+Docker and Kubernetes couldn't work together at the same time :(
+
+https://stackoverflow.com/questions/30496116/how-to-disable-hyper-v-in-command-line
+https://github.com/kubernetes/minikube/issues/3864
+https://github.com/kubernetes/minikube/issues/6087
+
+Deploy image to the kubernets:
+ - kubectl run cpuload-app --image=docker.io/ucuuser/kube:version1 --port=5678
+ - kubectl get pods
+
+Starting kubernets application:
+ - kubectl expose deployment cpuload-app --name=iterator-app --type=LoadBalancer --target-port=80
+ - minikube service iterator-app --url
+http://192.168.99.105:32700
+

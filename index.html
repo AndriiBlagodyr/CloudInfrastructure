@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Space Clicker</title>
+  </head>
+
+  <body>
+    <h1></h1>
+    <script type="text/javascript">
+      var timerId;
+      var flag = false;
+      function fibonacci(num) {
+        if (num <= 1) return 1;
+
+        return fibonacci(num - 1) + fibonacci(num - 2);
+      }
+      function onClick1() {
+        if (!flag) {
+          var counter = 0;
+          flag = true;
+          document.getElementById("message").innerHTML = "1 min iterations";
+          console.log("1 minute");
+          console.log(flag);
+          timerId = setInterval(function() {
+            counter += 1;
+            let result = fibonacci(counter);
+            console.log(counter);
+            document.getElementById("counter").innerHTML = result;
+          }, 0);
+          setTimeout(function() {
+            if (flag) {
+              clearInterval(timerId);
+              alert("1 minute passed!");
+            }
+          }, 60000);
+        }
+      }
+
+      function onClick10() {
+        if (!flag) {
+          var counter = 0;
+          flag = true;
+          document.getElementById("message").innerHTML = "10 min iterations";
+          console.log("10 minutes");
+          console.log(flag);
+          timerId = setInterval(function() {
+            counter += 1;
+            let result = fibonacci(counter);
+            console.log(counter);
+            document.getElementById("counter").innerHTML = result;
+          }, 0);
+          setTimeout(function() {
+            if (flag) {
+              clearInterval(timerId);
+              alert("10 minutes passed!");
+            }
+          }, 600000);
+        }
+      }
+      function stop() {
+        console.log("stop");
+        flag = false;
+        clearInterval(timerId);
+        document.getElementById("counter").innerHTML = 0;
+        document.getElementById("message").innerHTML = "Iterations are stopped";
+      }
+    </script>
+    <button type="button" onClick="onClick1()">
+      Iterations for 1 min
+    </button>
+    <button type="button" onClick="onClick10()">
+      Iterations for 10 min
+    </button>
+    <button type="button" onClick="stop()">Stop Iterations</button>
+    <p>Iteration number: <a id="counter">0</a></p>
+    <p>Message: <a id="message"></a></p>
+  </body>
+</html>
